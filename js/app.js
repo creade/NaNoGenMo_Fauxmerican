@@ -17,27 +17,9 @@ $(document).ready(function() {
 
         var gameGenerator = genball.generators.gameGenerator();
 
-        var game = gameGenerator.next(playData[0], kickdata[0], homeTeam, awayTeam,
+        game = gameGenerator.next(playData[0], kickdata[0], homeTeam, awayTeam,
                 1,  seed, homeTeam.stadium, false)
-
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
-        game.play();
+        game.playUntilNext();
+        
     })
 })

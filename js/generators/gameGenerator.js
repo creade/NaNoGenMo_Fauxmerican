@@ -878,25 +878,16 @@ genball.generators.gameGenerator = function() {
 
         };
 
-        var playUntil = function(currentTime) {
-            Math.random = rng;
-            if (completed()) {
-                return;
-            }
-
+        var playUntilNext = function() {
 
             while (driveState.clock > 0 && driveState.quarter === 1) {
-                if (driveState.time > currentTime) {
-                    return;
-                } else {
-                    play();
-                }
+                play();
             }
             if (driveState.clock === 0 && driveState.quarter === 1) {
                 plays.push({
                     commentary: "End of 1st Quarter",
-                    homeScore: scoreboard.homeScores.total(),
-                    awayScore: scoreboard.awayScores.total(),
+                    homeScore: scoreboard.homeScores.total,
+                    awayScore: scoreboard.awayScores.total,
                     possession: driveState.possession,
                     quarterChange: true,
                     driveNumber: driveState.driveNumber,
@@ -905,32 +896,26 @@ genball.generators.gameGenerator = function() {
                 driveState.quarter = 2;
                 driveState.clock = 900;
                 driveState.time += 4 * 60 * 1000;
-            }
-            if (driveState.time > currentTime) {
                 return;
             }
-
+            
             while (driveState.clock > 0 && driveState.quarter === 2) {
-                if (driveState.time > currentTime) {
-                    return;
-                } else {
-                    play();
-                }
+                play();
             }
             if (driveState.clock === 0 && driveState.quarter === 2) {
                 plays.push({
                     commentary: "End of 2nd Quarter",
-                    homeScore: scoreboard.homeScores.total(),
-                    awayScore: scoreboard.awayScores.total(),
+                    homeScore: scoreboard.homeScores.total,
+                    awayScore: scoreboard.awayScores.total,
                     possession: driveState.possession,
                     driveNumber: driveState.driveNumber,
                     quarter: 2
                 });
-                if (!driveSummaries()[driveState.driveNumber].ending) {
+                if (!driveSummaries[driveState.driveNumber].ending) {
                     driveSummaryEnd("END OF HALF", driveState);
                 }
                 driveState.driveNumber++;
-                driveSummaries()[driveState.driveNumber] = {
+                driveSummaries[driveState.driveNumber] = {
                     "start": driveState.at,
                     "startTime": driveState.clock
                 };
@@ -940,24 +925,19 @@ genball.generators.gameGenerator = function() {
                 driveState.quarter = 3;
                 driveState.clock = 900;
                 driveState.time += 20 * 60 * 1000;
-            }
-
-            if (driveState.time > currentTime) {
                 return;
             }
 
+           
+
             while (driveState.clock > 0 && driveState.quarter === 3) {
-                if (driveState.time > currentTime) {
-                    return;
-                } else {
-                    play();
-                }
+                play();
             }
             if (driveState.clock === 0 && driveState.quarter === 3) {
                 plays.push({
                     commentary: "End of 3rd Quarter",
-                    homeScore: scoreboard.homeScores.total(),
-                    awayScore: scoreboard.awayScores.total(),
+                    homeScore: scoreboard.homeScores.total,
+                    awayScore: scoreboard.awayScores.total,
                     possession: driveState.possession,
                     quarterChange: true,
                     driveNumber: driveState.driveNumber,
@@ -966,168 +946,166 @@ genball.generators.gameGenerator = function() {
                 driveState.quarter = 4;
                 driveState.clock = 900;
                 driveState.time += 4 * 60 * 1000;
-            }
-            if (driveState.time > currentTime) {
                 return;
             }
+
 
             while (driveState.clock > 0 && driveState.quarter === 4) {
-                if (driveState.time > currentTime) {
-                    return;
-                } else {
+             
                     play();
-                }
             }
-            if (scoreboard.homeScores.total() !== scoreboard.awayScores.total()) {
-                if (driveState.clock === 0 && driveState.quarter === 4) {
-                    plays.push({
-                        commentary: "End of 4th Quarter",
-                        homeScore: scoreboard.homeScores.total(),
-                        awayScore: scoreboard.awayScores.total(),
-                        possession: driveState.possession,
-                        driveNumber: driveState.driveNumber,
-                        quarter: 4
-                    });
-                }
-                if (!driveSummaries()[driveState.driveNumber].ending) {
-                    driveSummaryEnd("END OF REGULATION", driveState);
-                }
+            return;
+            
+            // if (scoreboard.homeScores.total() !== scoreboard.awayScores.total()) {
+            //     if (driveState.clock === 0 && driveState.quarter === 4) {
+            //         plays.push({
+            //             commentary: "End of 4th Quarter",
+            //             homeScore: scoreboard.homeScores.total(),
+            //             awayScore: scoreboard.awayScores.total(),
+            //             possession: driveState.possession,
+            //             driveNumber: driveState.driveNumber,
+            //             quarter: 4
+            //         });
+            //     }
+            //     if (!driveSummaries()[driveState.driveNumber].ending) {
+            //         driveSummaryEnd("END OF REGULATION", driveState);
+            //     }
 
 
-                completed(true);
+            //     completed(true);
 
-                if (scoreboard.homeScores.total() > scoreboard.awayScores.total()) {
-                    winner(home.name);
-                    home.record.wins++;
-                    away.record.losses++;
-                } else {
-                    winner(away.name);
-                    home.record.losses++;
-                    away.record.wins++;
-                }
-                home.record.history.push("(" + home.record.wins + "-" + home.record.losses + ")")
-                away.record.history.push("(" + away.record.wins + "-" + away.record.losses + ")")
-                return;
-            } else {
-                hasOTs(1);
-                var overtimeQuarter = 5;
-                if (driveState.clock === 0 && driveState.quarter === 4) {
-                    plays.push({
-                        commentary: "End of 4th Quarter",
-                        homeScore: scoreboard.homeScores.total(),
-                        awayScore: scoreboard.awayScores.total(),
-                        possession: driveState.possession,
-                        driveNumber: driveState.driveNumber,
-                        quarter: 4
-                    });
-                    if (!driveSummaries()[driveState.driveNumber].ending) {
-                        driveSummaryEnd("END OF REGULATION", driveState);
-                    }
-                    driveState.driveNumber++;
+            //     if (scoreboard.homeScores.total() > scoreboard.awayScores.total()) {
+            //         winner(home.name);
+            //         home.record.wins++;
+            //         away.record.losses++;
+            //     } else {
+            //         winner(away.name);
+            //         home.record.losses++;
+            //         away.record.wins++;
+            //     }
+            //     home.record.history.push("(" + home.record.wins + "-" + home.record.losses + ")")
+            //     away.record.history.push("(" + away.record.wins + "-" + away.record.losses + ")")
+            //     return;
+            // } else {
+            //     hasOTs(1);
+            //     var overtimeQuarter = 5;
+            //     if (driveState.clock === 0 && driveState.quarter === 4) {
+            //         plays.push({
+            //             commentary: "End of 4th Quarter",
+            //             homeScore: scoreboard.homeScores.total(),
+            //             awayScore: scoreboard.awayScores.total(),
+            //             possession: driveState.possession,
+            //             driveNumber: driveState.driveNumber,
+            //             quarter: 4
+            //         });
+            //         if (!driveSummaries()[driveState.driveNumber].ending) {
+            //             driveSummaryEnd("END OF REGULATION", driveState);
+            //         }
+            //         driveState.driveNumber++;
 
-                    driveState.quarter = overtimeQuarter;
-                    driveState.clock = 0;
-                    driveState.time += 10 * 60 * 1000;
-                }
+            //         driveState.quarter = overtimeQuarter;
+            //         driveState.clock = 0;
+            //         driveState.time += 10 * 60 * 1000;
+            //     }
 
-                if (driveState.time > currentTime) {
-                    return;
-                }
+            //     if (driveState.time > currentTime) {
+            //         return;
+            //     }
 
-                var firstInOt = _.pickRandom([away.name, home.name]);
+            //     var firstInOt = _.pickRandom([away.name, home.name]);
 
-                driveState.possession = firstInOt;
-                driveState = overtimeSetup(driveState);
+            //     driveState.possession = firstInOt;
+            //     driveState = overtimeSetup(driveState);
 
-                var possessionInOt = driveState.possession;
+            //     var possessionInOt = driveState.possession;
 
-                while (driveState.possession === possessionInOt && !driveState.kickoff) {
-                    if (driveState.time > currentTime) {
-                        return;
-                    } else {
-                        play();
-                    }
-                }
+            //     while (driveState.possession === possessionInOt && !driveState.kickoff) {
+            //         if (driveState.time > currentTime) {
+            //             return;
+            //         } else {
+            //             play();
+            //         }
+            //     }
 
-                driveState.possession = otherTeamByName(possessionInOt);
-                driveState = overtimeSetup(driveState);
+            //     driveState.possession = otherTeamByName(possessionInOt);
+            //     driveState = overtimeSetup(driveState);
 
-                possessionInOt = driveState.possession;
+            //     possessionInOt = driveState.possession;
 
-                while (driveState.possession === possessionInOt && !driveState.kickoff) {
-                    if (driveState.time > currentTime) {
-                        return;
-                    } else {
-                        play();
-                    }
-                }
+            //     while (driveState.possession === possessionInOt && !driveState.kickoff) {
+            //         if (driveState.time > currentTime) {
+            //             return;
+            //         } else {
+            //             play();
+            //         }
+            //     }
 
-                while (scoreboard.homeScores.total() === scoreboard.awayScores.total()) {
-                    if (driveState.clock === 0 && driveState.quarter === overtimeQuarter) {
-                        plays.push({
-                            commentary: "End of OT " + hasOTs(),
-                            homeScore: scoreboard.homeScores.total(),
-                            awayScore: scoreboard.awayScores.total(),
-                            possession: driveState.possession,
-                            driveNumber: driveState.driveNumber,
-                            quarter: overtimeQuarter
-                        });
-                        overtimeQuarter++;
-                        hasOTs(overtimeQuarter - 4);
-                        driveState.quarter = overtimeQuarter;
-                        driveState.clock = 0;
-                        driveState.time += 3 * 60 * 1000;
-                    }
+            //     while (scoreboard.homeScores.total() === scoreboard.awayScores.total()) {
+            //         if (driveState.clock === 0 && driveState.quarter === overtimeQuarter) {
+            //             plays.push({
+            //                 commentary: "End of OT " + hasOTs(),
+            //                 homeScore: scoreboard.homeScores.total(),
+            //                 awayScore: scoreboard.awayScores.total(),
+            //                 possession: driveState.possession,
+            //                 driveNumber: driveState.driveNumber,
+            //                 quarter: overtimeQuarter
+            //             });
+            //             overtimeQuarter++;
+            //             hasOTs(overtimeQuarter - 4);
+            //             driveState.quarter = overtimeQuarter;
+            //             driveState.clock = 0;
+            //             driveState.time += 3 * 60 * 1000;
+            //         }
 
-                    if (driveState.time > currentTime) {
-                        return;
-                    }
+            //         if (driveState.time > currentTime) {
+            //             return;
+            //         }
 
-                    var firstInOt = _.pickRandom([away.name, home.name]);
+            //         var firstInOt = _.pickRandom([away.name, home.name]);
 
-                    driveState.possession = firstInOt;
-                    driveState = overtimeSetup(driveState);
+            //         driveState.possession = firstInOt;
+            //         driveState = overtimeSetup(driveState);
 
-                    var possessionInOt = driveState.possession;
+            //         var possessionInOt = driveState.possession;
 
-                    while (driveState.possession === possessionInOt && !driveState.kickoff) {
-                        if (driveState.time > currentTime) {
-                            return;
-                        } else {
-                            play();
-                        }
-                    }
+            //         while (driveState.possession === possessionInOt && !driveState.kickoff) {
+            //             if (driveState.time > currentTime) {
+            //                 return;
+            //             } else {
+            //                 play();
+            //             }
+            //         }
 
-                    driveState.possession = otherTeamByName(possessionInOt);
-                    driveState = overtimeSetup(driveState);
+            //         driveState.possession = otherTeamByName(possessionInOt);
+            //         driveState = overtimeSetup(driveState);
 
-                    possessionInOt = driveState.possession;
+            //         possessionInOt = driveState.possession;
 
-                    while (driveState.possession === possessionInOt && !driveState.kickoff) {
-                        if (driveState.time > currentTime) {
-                            return;
-                        } else {
-                            play();
-                        }
-                    }
-                }
+            //         while (driveState.possession === possessionInOt && !driveState.kickoff) {
+            //             if (driveState.time > currentTime) {
+            //                 return;
+            //             } else {
+            //                 play();
+            //             }
+            //         }
+            //     }
 
 
-                completed(true);
-                if (scoreboard.homeScores.total() > scoreboard.awayScores.total()) {
-                    winner(home.name);
-                    home.record.wins++;
-                    away.record.losses++;
+            //     completed(true);
+            //     if (scoreboard.homeScores.total() > scoreboard.awayScores.total()) {
+            //         winner(home.name);
+            //         home.record.wins++;
+            //         away.record.losses++;
 
-                } else {
-                    winner(away.name);
-                    home.record.losses++;
-                    away.record.wins++;
-                }
-                home.record.history.push("(" + home.record.wins + "-" + home.record.losses + ")")
-                away.record.history.push("(" + away.record.wins + "-" + away.record.losses + ")")
-                return;
-            }
+            //     } else {
+            //         winner(away.name);
+            //         home.record.losses++;
+            //         away.record.wins++;
+            //     }
+            //     home.record.history.push("(" + home.record.wins + "-" + home.record.losses + ")")
+            //     away.record.history.push("(" + away.record.wins + "-" + away.record.losses + ")")
+            //     return;
+            // }
         }
 
         var forDisplay = function(oldDriveState, newDriveState, scoreboard, play) {
@@ -1168,7 +1146,7 @@ genball.generators.gameGenerator = function() {
 
 
         return {
-            playUntil: playUntil,
+            playUntilNext: playUntilNext,
             play:play,
             teams: teams,
             driveSummaries: driveSummaries,
