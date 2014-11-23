@@ -1,9 +1,12 @@
 var genball = genball || {};
 genball.models = genball.models || {};
 
-genball.models.team = function(info, coach, OC, DC, tempo, players, institution, stadium, id, logo, skill, defSkill, outOfConference) {
+genball.models.team = function(info, coach, OC, DC, tempo, players, institution, stadium, id, logo, skill, defSkill, finalScores) {
     var currentPasser;
     var passesRemaining;
+    var scores = finalScores
+    var currentStrategy = scores.pop();
+
 
     var getKicker = function() {
         return _.find(players, function(player) {
@@ -120,6 +123,19 @@ genball.models.team = function(info, coach, OC, DC, tempo, players, institution,
         return _.pickRandom(recoverers);
     }
 
+    var nextStrategy = function(){
+        if(scores.length > 0){
+            currentStrategy = scores.pop();
+        } else {
+            currentStrategy = "hld";
+        }
+    }
+
+    var getCurrentStrategy = function(){
+
+        return currentStrategy;
+    }
+
     return {
         getKicker: getKicker,
         getPunter: getPunter,
@@ -136,7 +152,9 @@ genball.models.team = function(info, coach, OC, DC, tempo, players, institution,
         color: info.teamColor,
         shortName: institution.shortName,
         coach: coach,
-        outOfConference: outOfConference,
+        getCurrentStrategy: getCurrentStrategy,
+        nextStrategy: nextStrategy,
+        scores: scores,
         OC: OC,
         DC: DC,
         tempo: tempo,

@@ -53,8 +53,9 @@ genball.models.scoreboard = function (home, away) {
             scoringTeam = away;
             var line = awayScores;
         }
+        
         var leadChanged = leadChange(team, points);
-
+        scoringTeam.nextStrategy();
         line.total = line.total + points;
         
         line.quarters[quarter - 1] = (line.quarters[quarter - 1] + points);

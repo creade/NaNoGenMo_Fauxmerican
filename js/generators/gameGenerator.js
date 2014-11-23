@@ -4,12 +4,12 @@ genball.generators = genball.generators || {};
 
 
 genball.generators.gameGenerator = function() {
-    var next = function(data, kickdata, home, away, startTime,  stadium, debug) {
+    var next = function(data, kickdata, home, away, stadium, debugOn) {
         var playGenerator = genball.generators.playGenerator(data);
         var kickoffGenerator = genball.generators.kickoffGenerator(kickdata);
 
         var scoreboard = genball.models.scoreboard(home, away);
-        
+
         var driveSummaries = [];
 
 
@@ -136,18 +136,47 @@ genball.generators.gameGenerator = function() {
             team.seasonStats[stat] = (team.seasonStats[stat] || 0) + change
         }
 
-        var goForTwo = function(driveState, scoreboard) {
-            return (driveState.quarter === 4 &&
-                _.contains(
-                    [-30, -29, -27, -26, -24, -22, -19, -18, -16, -15, -13, -12, -8, -5, -2, 1, 5, 12, 19, 26], (scoreboard.getDifferenital(driveState.possession) + 6))
-            ) || driveState.quarter > 6;
+        var shouldBeTwo = function(driveState, scoreboard) {
+            var currentDiff = scoreboard.getDifferenital(driveState.possession) + 6;
+            return (driveState.quarter === 4 || driveState.quarter > 6) && (
+                currentDiff === -2
+            )
+
+        }
+        var shouldBeZeroForOne = function(driveState, scoreboard) {
+            var currentDiff = scoreboard.getDifferenital(driveState.possession) + 6;
+            return (driveState.quarter === 4 || driveState.quarter <= 6) && (
+                currentDiff === 0
+            )
+        }
+
+        var shouldBeZeroForTwo = function(driveState, scoreboard) {
+            var currentDiff = scoreboard.getDifferenital(driveState.possession) + 6;
+            return (driveState.quarter === 4 || driveState.quarter > 6) && (
+                currentDiff === 0
+            )
+        }
+        var shouldBeOne = function(driveState, scoreboard) {
+            var currentDiff = scoreboard.getDifferenital(driveState.possession) + 6;
+            return (driveState.quarter === 4 || driveState.quarter > 6) && (
+                currentDiff === -1
+            )
+
         }
 
         var extraPoint = function(driveState) {
-            if (goForTwo(driveState, scoreboard)) {
-                return twoPointConversion(driveState);
-            } else {
-                return pat(driveState);
+            var team = teams[driveState.possession];
+
+            if (team.getCurrentStrategy() === "td") {
+                return succesfulPat(driveState);
+            }
+
+            if (team.getCurrentStrategy() === "xp") {
+                return unsuccesfulPat(driveState)
+            }
+
+            if (team.getCurrentStrategy() === "tp") {
+                return succesfulTwoPointConversion(driveState);
             }
         }
 
@@ -169,33 +198,59 @@ genball.generators.gameGenerator = function() {
             }
             return driveState;
         }
-        var twoPointConversion = function(driveState) {
+        var succesfulPat = function(driveState) {
             var team = teams[driveState.possession];
-            if (Math.random() < .45) {
-                if (Math.random() < .5) {
-                    var rusher = team.getRusher();
-                    driveState.commentary += "TWO-POINT CONVERSION ATTEMPT. " + rusher.fullName + " rush SUCCEEDS."
-                    scoreboard.score(driveState.possession, driveState, rusher, 8, driveState.quarter);
-                } else {
-                    var passer = team.getPasser();
-                    var receiver = team.getReceiver(passer.depth);
-                    driveState.commentary += "TWO-POINT CONVERSION ATTEMPT. " + passer.fullName + " pass to " + receiver.fullName + " SUCCEEDS."
-                    scoreboard.score(driveState.possession, driveState, passer, 8, driveState.quarter, receiver);
-                }
+            var kicker = team.getKicker();
 
-            } else {
-                if (Math.random() < .5) {
-                    var rusher = team.getRusher();
-                    driveState.commentary += "TWO-POINT CONVERSION ATTEMPT. " + rusher.fullName + " rush FAILS."
-                    scoreboard.score(driveState.possession, driveState, rusher, 6, driveState.quarter);
-                } else {
-                    var passer = team.getPasser();
-                    driveState.commentary += "TWO-POINT CONVERSION ATTEMPT. " + passer.fullName + " pass INCOMPLETE."
-                    scoreboard.score(driveState.possession, driveState, passer, 6, driveState.quarter);
-                }
-            }
+            statUpdate(kicker, team, "XPA", 1);
+            driveState.commentary += kicker.fullName;
+            driveState.commentary += " extra point GOOD."
+            statUpdate(kicker, team, "XPM", 1);
+            scoreboard.score(driveState.possession, driveState, kicker, 7, driveState.quarter);
             return driveState;
         }
+        var unsuccesfulPat = function(driveState) {
+            var team = teams[driveState.possession];
+            var kicker = team.getKicker();
+
+            statUpdate(kicker, team, "XPA", 1);
+            driveState.commentary += kicker.fullName;
+            driveState.commentary += " extra point MISSED."
+            scoreboard.score(driveState.possession, driveState, kicker, 6, driveState.quarter);
+            return driveState;
+        }
+
+        var succesfulTwoPointConversion = function(driveState) {
+            var team = teams[driveState.possession];
+            if (Math.random() < .5) {
+                var rusher = team.getRusher();
+                driveState.commentary += "TWO-POINT CONVERSION ATTEMPT. " + rusher.fullName + " rush SUCCEEDS."
+                scoreboard.score(driveState.possession, driveState, rusher, 8, driveState.quarter);
+            } else {
+                var passer = team.getPasser();
+                var receiver = team.getReceiver(passer.depth);
+                driveState.commentary += "TWO-POINT CONVERSION ATTEMPT. " + passer.fullName + " pass to " + receiver.fullName + " SUCCEEDS."
+                scoreboard.score(driveState.possession, driveState, passer, 8, driveState.quarter, receiver);
+            }
+            return driveState;
+
+        }
+
+        var unsuccesfulTwoPointConversion = function(driveState) {
+            var team = teams[driveState.possession];
+            if (Math.random() < .5) {
+                var rusher = team.getRusher();
+                driveState.commentary += "TWO-POINT CONVERSION ATTEMPT. " + rusher.fullName + " rush FAILS."
+                scoreboard.score(driveState.possession, driveState, rusher, 6, driveState.quarter);
+            } else {
+                var passer = team.getPasser();
+                driveState.commentary += "TWO-POINT CONVERSION ATTEMPT. " + passer.fullName + " pass INCOMPLETE."
+                scoreboard.score(driveState.possession, driveState, passer, 6, driveState.quarter);
+            }
+
+
+        }
+
 
         var kickoffSetup = function(driveState) {
             driveState.kickoff = true;
@@ -612,12 +667,18 @@ genball.generators.gameGenerator = function() {
                 driveState.at = 25;
                 driveState = changePossession(driveState);
             } else if (driveState.at === 100) {
-                driveState.commentary += "Recovered by " + recoverer.fullName + " in the endzone for a TOUCHDOWN. ";
-                driveState = changePossession(driveState);
-                driveState = extraPoint(driveState);
-                driveState = kickoffSetup(driveState);
+                if (recoveringTeam.getCurrentStrategy() === "fg" || recoveringTeam.getCurrentStrategy() === "hld") {
+                    driveState.at = 99;
+                    driveState = changePossession(driveState);
+                    driveState.commentary += "Recovered by " + recoverer.fullName + " at the " + atFormatter(driveState);
+                } else {
+                    driveState.commentary += "Recovered by " + recoverer.fullName + " in the endzone for a TOUCHDOWN. ";
+                    driveState = changePossession(driveState);
+                    driveState = extraPoint(driveState);
+                    driveState = kickoffSetup(driveState);
+                }
             } else {
-                var driveState = changePossession(driveState);
+                driveState = changePossession(driveState);
                 driveState.commentary += "Recovered by " + recoverer.fullName + " at the " + atFormatter(driveState);
             }
 
@@ -643,28 +704,30 @@ genball.generators.gameGenerator = function() {
             var pickedAt = driveState.at - Math.round(_.randomBetween(0, Math.min(25, driveState.at)));
             var returnYards = Math.round(Math.max(_.normal(13.40219, 17.97221), 0));
 
-            if (pickedAt + returnYards >= 100) {
+            if (pickedAt + returnYards >= 100 && defense.getCurrentStrategy() !== "fg" && defense.getCurrentStrategy() !== "hld" ) {
                 driveState.commentary = passer.fullName + " INTERCEPTED by " + interceptor.fullName + " at the " + atFormatterForAt(pickedAt, driveState.possession) + ". ";
                 driveState.commentary += "RETURNED " + (100 - pickedAt) + " yards for a TOUCHDOWN. ";
                 driveState = changePossession(driveState);
                 driveState = extraPoint(driveState);
                 driveState = kickoffSetup(driveState);
                 return driveState;
-            } else {
-
-                driveState.commentary = passer.fullName + " INTERCEPTED by " + interceptor.fullName + " at the " + atFormatterForAt(pickedAt, driveState.possession) + ". ";
-                if (returnYards === 1) {
-                    driveState.commentary += "RETURNED for " + returnYards + " yard to the " + atFormatterForAt(pickedAt + returnYards, driveState.possession) + ".";
-                } else if (returnYards !== 0) {
-                    driveState.commentary += "RETURNED for " + returnYards + " yards to the " + atFormatterForAt(pickedAt + returnYards, driveState.possession) + ".";
-                }
-
-                driveSummaryEnd("INTERCEPTION", driveState);
-
-                driveState.at = pickedAt + returnYards;
-                var driveState = changePossession(driveState);
-                return driveState;
+            } else if (pickedAt + returnYards >= 100) {
+                returnYards = 0;
             }
+
+            driveState.commentary = passer.fullName + " INTERCEPTED by " + interceptor.fullName + " at the " + atFormatterForAt(pickedAt, driveState.possession) + ". ";
+            if (returnYards === 1) {
+                driveState.commentary += "RETURNED for " + returnYards + " yard to the " + atFormatterForAt(pickedAt + returnYards, driveState.possession) + ".";
+            } else if (returnYards !== 0) {
+                driveState.commentary += "RETURNED for " + returnYards + " yards to the " + atFormatterForAt(pickedAt + returnYards, driveState.possession) + ".";
+            }
+
+            driveSummaryEnd("INTERCEPTION", driveState);
+
+            driveState.at = pickedAt + returnYards;
+            var driveState = changePossession(driveState);
+            return driveState;
+
 
 
         }
@@ -841,8 +904,9 @@ genball.generators.gameGenerator = function() {
 
 
 
-            if (debug) {
+            if (debugOn) {
                 console.log(clockFormatter(driveState));
+                console.log(scoreboard.homeScores.total + " " + scoreboard.awayScores.total);
             }
             if (play.type === "KICKOFF") {
                 return kickoff(driveState, play)
@@ -879,12 +943,12 @@ genball.generators.gameGenerator = function() {
         };
 
         var playUntilNext = function() {
-
+            var playsForNow = [];
             while (driveState.clock > 0 && driveState.quarter === 1) {
-                play();
+                playsForNow.push(play())
             }
             if (driveState.clock === 0 && driveState.quarter === 1) {
-                plays.push({
+                var EOQ1 = {
                     commentary: "End of 1st Quarter",
                     homeScore: scoreboard.homeScores.total,
                     awayScore: scoreboard.awayScores.total,
@@ -892,25 +956,29 @@ genball.generators.gameGenerator = function() {
                     quarterChange: true,
                     driveNumber: driveState.driveNumber,
                     quarter: 1
-                });
+                };
+                plays.push(EOQ1);
+                playsForNow.push(EOQ1);
                 driveState.quarter = 2;
                 driveState.clock = 900;
                 driveState.time += 4 * 60 * 1000;
-                return;
+                return playsForNow;
             }
-            
+
             while (driveState.clock > 0 && driveState.quarter === 2) {
-                play();
+                 playsForNow.push(play())
             }
             if (driveState.clock === 0 && driveState.quarter === 2) {
-                plays.push({
+                var EOQ2 = {
                     commentary: "End of 2nd Quarter",
                     homeScore: scoreboard.homeScores.total,
                     awayScore: scoreboard.awayScores.total,
                     possession: driveState.possession,
                     driveNumber: driveState.driveNumber,
                     quarter: 2
-                });
+                }
+                plays.push(EOQ2);
+                playsForNow.push(EOQ2);
                 if (!driveSummaries[driveState.driveNumber].ending) {
                     driveSummaryEnd("END OF HALF", driveState);
                 }
@@ -928,13 +996,14 @@ genball.generators.gameGenerator = function() {
                 return;
             }
 
-           
+
 
             while (driveState.clock > 0 && driveState.quarter === 3) {
-                play();
+                playsForNow.push(play())
             }
             if (driveState.clock === 0 && driveState.quarter === 3) {
-                plays.push({
+                var EOQ3 = 
+                {
                     commentary: "End of 3rd Quarter",
                     homeScore: scoreboard.homeScores.total,
                     awayScore: scoreboard.awayScores.total,
@@ -942,7 +1011,9 @@ genball.generators.gameGenerator = function() {
                     quarterChange: true,
                     driveNumber: driveState.driveNumber,
                     quarter: 3
-                });
+                };
+                plays.push(EOQ3);
+                playsForNow.push(EOQ3);
                 driveState.quarter = 4;
                 driveState.clock = 900;
                 driveState.time += 4 * 60 * 1000;
@@ -951,11 +1022,10 @@ genball.generators.gameGenerator = function() {
 
 
             while (driveState.clock > 0 && driveState.quarter === 4) {
-             
-                    play();
+                playsForNow.push(play())
             }
             return;
-            
+
             // if (scoreboard.homeScores.total() !== scoreboard.awayScores.total()) {
             //     if (driveState.clock === 0 && driveState.quarter === 4) {
             //         plays.push({
@@ -1124,30 +1194,28 @@ genball.generators.gameGenerator = function() {
         }
 
         var play = function() {
-            if (debug) {
+            if (debugOn) {
                 console.log(driveState);
             }
             var play;
             if (driveState.kickoff) {
-                play = kickoffGenerator.nextPlay(1, driveState.at)
+                play = kickoffGenerator.nextPlay(1, driveState.at, teams[otherTeam(driveState)])
             } else {
                 play = playGenerator.nextPlay(driveState.quarter, driveState.down, driveState.distance, driveState.at, teams[driveState.possession], teams, scoreboard, driveState.clock);
             }
 
             var oldDriveState = genball.models.driveState().clone(driveState);
             driveState = updateDriveState(play, driveState);
-            plays.push(forDisplay(oldDriveState, driveState, scoreboard))
-            if (debug) {
-                console.log(scoreboard);
-                console.log(driveState.commentary);
-            }
+            var displayPlay = forDisplay(oldDriveState, driveState, scoreboard);
+            plays.push(displayPlay)
+            return displayPlay;
         }
 
 
 
         return {
             playUntilNext: playUntilNext,
-            play:play,
+            play: play,
             teams: teams,
             driveSummaries: driveSummaries,
             scoreboard: scoreboard,
