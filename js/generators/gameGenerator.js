@@ -993,7 +993,7 @@ genball.generators.gameGenerator = function() {
                 driveState.quarter = 3;
                 driveState.clock = 900;
                 driveState.time += 20 * 60 * 1000;
-                return;
+                return playsForNow;
             }
 
 
@@ -1017,14 +1017,14 @@ genball.generators.gameGenerator = function() {
                 driveState.quarter = 4;
                 driveState.clock = 900;
                 driveState.time += 4 * 60 * 1000;
-                return;
+                return playsForNow;
             }
 
 
             while (driveState.clock > 0 && driveState.quarter === 4) {
                 playsForNow.push(play())
             }
-            return;
+            return playsForNow;
 
             // if (scoreboard.homeScores.total() !== scoreboard.awayScores.total()) {
             //     if (driveState.clock === 0 && driveState.quarter === 4) {
