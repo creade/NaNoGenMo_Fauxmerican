@@ -137,33 +137,7 @@ genball.generators.gameGenerator = function() {
             team.seasonStats[stat] = (team.seasonStats[stat] || 0) + change
         }
 
-        var shouldBeTwo = function(driveState, scoreboard) {
-            var currentDiff = scoreboard.getDifferenital(driveState.possession) + 6;
-            return (driveState.quarter === 4 || driveState.quarter > 6) && (
-                currentDiff === -2
-            )
 
-        }
-        var shouldBeZeroForOne = function(driveState, scoreboard) {
-            var currentDiff = scoreboard.getDifferenital(driveState.possession) + 6;
-            return (driveState.quarter === 4 || driveState.quarter <= 6) && (
-                currentDiff === 0
-            )
-        }
-
-        var shouldBeZeroForTwo = function(driveState, scoreboard) {
-            var currentDiff = scoreboard.getDifferenital(driveState.possession) + 6;
-            return (driveState.quarter === 4 || driveState.quarter > 6) && (
-                currentDiff === 0
-            )
-        }
-        var shouldBeOne = function(driveState, scoreboard) {
-            var currentDiff = scoreboard.getDifferenital(driveState.possession) + 6;
-            return (driveState.quarter === 4 || driveState.quarter > 6) && (
-                currentDiff === -1
-            )
-
-        }
 
         var extraPoint = function(driveState) {
             var team = teams[driveState.possession];
@@ -185,24 +159,6 @@ genball.generators.gameGenerator = function() {
             }
         }
 
-        var pat = function(driveState) {
-            var team = teams[driveState.possession];
-            var kicker = team.getKicker();
-
-            statUpdate(kicker, team, "XPA", 1);
-            var chance = Math.random();
-            driveState.commentary += kicker.fullName;
-            if (chance <= kicker.skill) {
-
-                driveState.commentary += " extra point GOOD."
-                statUpdate(kicker, team, "XPM", 1);
-                scoreboard.score(driveState.possession, driveState, kicker, 7, driveState.quarter);
-            } else {
-                driveState.commentary += " extra point MISSED."
-                scoreboard.score(driveState.possession, driveState, kicker, 6, driveState.quarter);
-            }
-            return driveState;
-        }
         var succesfulPat = function(driveState) {
             var team = teams[driveState.possession];
             var kicker = team.getKicker();
