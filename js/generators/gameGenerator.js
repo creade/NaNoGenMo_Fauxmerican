@@ -20,7 +20,6 @@ genball.generators.gameGenerator = function() {
 
         var completed = false;
         var winner;
-        var hasOTs;
 
         teams[away.name] = away;
         teams[home.name] = home;
@@ -37,6 +36,8 @@ genball.generators.gameGenerator = function() {
                 player.stats = {};
             });
         }
+
+        var hasOTs = 0;
 
 
 
@@ -178,6 +179,10 @@ genball.generators.gameGenerator = function() {
             if (team.getCurrentStrategy() === "tp") {
                 return succesfulTwoPointConversion(driveState);
             }
+
+            if (team.getCurrentStrategy() === "tpf") {
+                return unsuccesfulTwoPointConversion(driveState);
+            }
         }
 
         var pat = function(driveState) {
@@ -247,8 +252,7 @@ genball.generators.gameGenerator = function() {
                 driveState.commentary += "TWO-POINT CONVERSION ATTEMPT. " + passer.fullName + " pass INCOMPLETE."
                 scoreboard.score(driveState.possession, driveState, passer, 6, driveState.quarter);
             }
-
-
+            return driveState;
         }
 
 
@@ -266,7 +270,7 @@ genball.generators.gameGenerator = function() {
             driveState.down = 1;
             driveState.distance = 10;
             driveState.driveNumber++;
-            driveSummaries()[driveState.driveNumber] = {
+            driveSummaries[driveState.driveNumber] = {
                 "start": driveState.at,
                 "startTime": driveState.clock
             };
@@ -704,7 +708,7 @@ genball.generators.gameGenerator = function() {
             var pickedAt = driveState.at - Math.round(_.randomBetween(0, Math.min(25, driveState.at)));
             var returnYards = Math.round(Math.max(_.normal(13.40219, 17.97221), 0));
 
-            if (pickedAt + returnYards >= 100 && defense.getCurrentStrategy() !== "fg" && defense.getCurrentStrategy() !== "hld" ) {
+            if (pickedAt + returnYards >= 100 && defense.getCurrentStrategy() !== "fg" && defense.getCurrentStrategy() !== "hld" && driveState.quarter < 5) {
                 driveState.commentary = passer.fullName + " INTERCEPTED by " + interceptor.fullName + " at the " + atFormatterForAt(pickedAt, driveState.possession) + ". ";
                 driveState.commentary += "RETURNED " + (100 - pickedAt) + " yards for a TOUCHDOWN. ";
                 driveState = changePossession(driveState);
@@ -949,7 +953,7 @@ genball.generators.gameGenerator = function() {
             }
             if (driveState.clock === 0 && driveState.quarter === 1) {
                 var EOQ1 = {
-                    commentary: "End of 1st Quarter",
+                    commentary: "End of 1st Quarter " + scoreboard.homeScores.total + " " + scoreboard.awayScores.total,
                     homeScore: scoreboard.homeScores.total,
                     awayScore: scoreboard.awayScores.total,
                     possession: driveState.possession,
@@ -966,11 +970,11 @@ genball.generators.gameGenerator = function() {
             }
 
             while (driveState.clock > 0 && driveState.quarter === 2) {
-                 playsForNow.push(play())
+                playsForNow.push(play())
             }
             if (driveState.clock === 0 && driveState.quarter === 2) {
                 var EOQ2 = {
-                    commentary: "End of 2nd Quarter",
+                    commentary: "End of 2nd Quarter "+ scoreboard.homeScores.total + " " + scoreboard.awayScores.total,
                     homeScore: scoreboard.homeScores.total,
                     awayScore: scoreboard.awayScores.total,
                     possession: driveState.possession,
@@ -1002,9 +1006,8 @@ genball.generators.gameGenerator = function() {
                 playsForNow.push(play())
             }
             if (driveState.clock === 0 && driveState.quarter === 3) {
-                var EOQ3 = 
-                {
-                    commentary: "End of 3rd Quarter",
+                var EOQ3 = {
+                    commentary: "End of 3rd Quarter "+ scoreboard.homeScores.total + " " + scoreboard.awayScores.total,
                     homeScore: scoreboard.homeScores.total,
                     awayScore: scoreboard.awayScores.total,
                     possession: driveState.possession,
@@ -1024,158 +1027,80 @@ genball.generators.gameGenerator = function() {
             while (driveState.clock > 0 && driveState.quarter === 4) {
                 playsForNow.push(play())
             }
+
+
+            if (driveState.clock === 0 && driveState.quarter === 4) {
+                var EOQ4 = {
+                    commentary: "End of 4th Quarter " + scoreboard.homeScores.total + " " + scoreboard.awayScores.total,
+                    homeScore: scoreboard.homeScores.total,
+                    awayScore: scoreboard.awayScores.total,
+                    possession: driveState.possession,
+                    driveNumber: driveState.driveNumber,
+                    quarter: 4
+                };
+                if (!driveSummaries[driveState.driveNumber].ending) {
+                    driveSummaryEnd("END OF REGULATION", driveState);
+                }
+
+                plays.push(EOQ4);
+                playsForNow.push(EOQ4);
+                driveState.driveNumber++;
+
+                driveState.quarter = 5;
+                driveState.clock = 0;
+                driveState.time += 10 * 60 * 1000;
+                return playsForNow;
+            }
+            
+            hasOTs++;
+
+
+            var firstInOt = _.pickRandom([away.name, home.name]);
+            var otStrategy;
+            if (driveState.quarter > 6 ){
+                otStrategy = _.pickRandom(["fg","tpf", "tp","fg","tpf", "tp", "hld"])
+            } else {
+                otStrategy = _.pickRandom(["fg","fg","fg", "tp", "td", "td", "td", "tpf", "hld", "hld"])
+            }
+
+            home.setCurrentStrategy(otStrategy);
+            away.setCurrentStrategy(otStrategy);
+
+            driveState.possession = firstInOt;
+            driveState = overtimeSetup(driveState);
+
+            var possessionInOt = driveState.possession;
+
+            while (driveState.possession === possessionInOt && !driveState.kickoff) {
+                playsForNow.push(play())
+            }
+
+            driveState.possession = otherTeamByName(possessionInOt);
+            driveState = overtimeSetup(driveState);
+
+            possessionInOt = driveState.possession;
+
+            while (driveState.possession === possessionInOt && !driveState.kickoff) {
+                playsForNow.push(play())
+            }
+
+            driveState.quarter++;
+
+            var EOOT = {
+                commentary: "End of OT " + hasOTs +" "+ scoreboard.homeScores.total + " " + scoreboard.awayScores.total,
+                homeScore: scoreboard.homeScores.total,
+                awayScore: scoreboard.awayScores.total,
+                possession: driveState.possession,
+                driveNumber: driveState.driveNumber,
+                quarter: driveState.quarter
+            };
+
+            plays.push(EOOT);
+            playsForNow.push(EOOT);
+
             return playsForNow;
 
-            // if (scoreboard.homeScores.total() !== scoreboard.awayScores.total()) {
-            //     if (driveState.clock === 0 && driveState.quarter === 4) {
-            //         plays.push({
-            //             commentary: "End of 4th Quarter",
-            //             homeScore: scoreboard.homeScores.total(),
-            //             awayScore: scoreboard.awayScores.total(),
-            //             possession: driveState.possession,
-            //             driveNumber: driveState.driveNumber,
-            //             quarter: 4
-            //         });
-            //     }
-            //     if (!driveSummaries()[driveState.driveNumber].ending) {
-            //         driveSummaryEnd("END OF REGULATION", driveState);
-            //     }
-
-
-            //     completed(true);
-
-            //     if (scoreboard.homeScores.total() > scoreboard.awayScores.total()) {
-            //         winner(home.name);
-            //         home.record.wins++;
-            //         away.record.losses++;
-            //     } else {
-            //         winner(away.name);
-            //         home.record.losses++;
-            //         away.record.wins++;
-            //     }
-            //     home.record.history.push("(" + home.record.wins + "-" + home.record.losses + ")")
-            //     away.record.history.push("(" + away.record.wins + "-" + away.record.losses + ")")
-            //     return;
-            // } else {
-            //     hasOTs(1);
-            //     var overtimeQuarter = 5;
-            //     if (driveState.clock === 0 && driveState.quarter === 4) {
-            //         plays.push({
-            //             commentary: "End of 4th Quarter",
-            //             homeScore: scoreboard.homeScores.total(),
-            //             awayScore: scoreboard.awayScores.total(),
-            //             possession: driveState.possession,
-            //             driveNumber: driveState.driveNumber,
-            //             quarter: 4
-            //         });
-            //         if (!driveSummaries()[driveState.driveNumber].ending) {
-            //             driveSummaryEnd("END OF REGULATION", driveState);
-            //         }
-            //         driveState.driveNumber++;
-
-            //         driveState.quarter = overtimeQuarter;
-            //         driveState.clock = 0;
-            //         driveState.time += 10 * 60 * 1000;
-            //     }
-
-            //     if (driveState.time > currentTime) {
-            //         return;
-            //     }
-
-            //     var firstInOt = _.pickRandom([away.name, home.name]);
-
-            //     driveState.possession = firstInOt;
-            //     driveState = overtimeSetup(driveState);
-
-            //     var possessionInOt = driveState.possession;
-
-            //     while (driveState.possession === possessionInOt && !driveState.kickoff) {
-            //         if (driveState.time > currentTime) {
-            //             return;
-            //         } else {
-            //             play();
-            //         }
-            //     }
-
-            //     driveState.possession = otherTeamByName(possessionInOt);
-            //     driveState = overtimeSetup(driveState);
-
-            //     possessionInOt = driveState.possession;
-
-            //     while (driveState.possession === possessionInOt && !driveState.kickoff) {
-            //         if (driveState.time > currentTime) {
-            //             return;
-            //         } else {
-            //             play();
-            //         }
-            //     }
-
-            //     while (scoreboard.homeScores.total() === scoreboard.awayScores.total()) {
-            //         if (driveState.clock === 0 && driveState.quarter === overtimeQuarter) {
-            //             plays.push({
-            //                 commentary: "End of OT " + hasOTs(),
-            //                 homeScore: scoreboard.homeScores.total(),
-            //                 awayScore: scoreboard.awayScores.total(),
-            //                 possession: driveState.possession,
-            //                 driveNumber: driveState.driveNumber,
-            //                 quarter: overtimeQuarter
-            //             });
-            //             overtimeQuarter++;
-            //             hasOTs(overtimeQuarter - 4);
-            //             driveState.quarter = overtimeQuarter;
-            //             driveState.clock = 0;
-            //             driveState.time += 3 * 60 * 1000;
-            //         }
-
-            //         if (driveState.time > currentTime) {
-            //             return;
-            //         }
-
-            //         var firstInOt = _.pickRandom([away.name, home.name]);
-
-            //         driveState.possession = firstInOt;
-            //         driveState = overtimeSetup(driveState);
-
-            //         var possessionInOt = driveState.possession;
-
-            //         while (driveState.possession === possessionInOt && !driveState.kickoff) {
-            //             if (driveState.time > currentTime) {
-            //                 return;
-            //             } else {
-            //                 play();
-            //             }
-            //         }
-
-            //         driveState.possession = otherTeamByName(possessionInOt);
-            //         driveState = overtimeSetup(driveState);
-
-            //         possessionInOt = driveState.possession;
-
-            //         while (driveState.possession === possessionInOt && !driveState.kickoff) {
-            //             if (driveState.time > currentTime) {
-            //                 return;
-            //             } else {
-            //                 play();
-            //             }
-            //         }
-            //     }
-
-
-            //     completed(true);
-            //     if (scoreboard.homeScores.total() > scoreboard.awayScores.total()) {
-            //         winner(home.name);
-            //         home.record.wins++;
-            //         away.record.losses++;
-
-            //     } else {
-            //         winner(away.name);
-            //         home.record.losses++;
-            //         away.record.wins++;
-            //     }
-            //     home.record.history.push("(" + home.record.wins + "-" + home.record.losses + ")")
-            //     away.record.history.push("(" + away.record.wins + "-" + away.record.losses + ")")
-            //     return;
-            // }
+           
         }
 
         var forDisplay = function(oldDriveState, newDriveState, scoreboard, play) {

@@ -25,6 +25,28 @@ genball.generators.playGenerator = function(data) {
             }
         }
     }
+    var meetsOTStrategy = function(strategy, play, otherTeamStrategy) {
+        if (play.St === 1) {
+            return false;
+        }
+
+
+        if (strategy === "fg") {
+            return (_.isUndefined(play.T) || play.T === 0) &&
+                (_.isUndefined(play.FGM) || play.FGM === 1) &&
+                (_.isUndefined(play.I) || play.I === 0) &&
+                (_.isUndefined(play.Fl) || play.Fl === 0)
+        }
+
+        if (strategy === "hld") {
+            return (_.isUndefined(play.T) || play.T === 0) &&
+                (_.isUndefined(play.FGM) || play.FGM === 0)
+        }
+
+        return (_.isUndefined(play.FGM) || play.FGM === 0) &&
+        (_.isUndefined(play.I) || play.I === 0) &&
+        (_.isUndefined(play.Fl) || play.Fl === 0)
+    }
 
     var makeKick = function() {
         return [{
@@ -44,21 +66,61 @@ genball.generators.playGenerator = function(data) {
     }
     var hailMary = function(at) {
         return [{
-            "Dis": 10,
+            "Dis": at,
             "At": at,
             "Ty": "PA",
             "C": 1,
-            "Y": 0,
+            "Y": at,
             "T": 1,
             "I": 0
         }, ]
+    }
+    var firstDown = function(distance) {
+        return [
+            _.pickRandom(
+                [{
+                    "Ty": "PA",
+                    "C": 1,
+                    "Y": distance,
+                    "T": 0,
+                    "I": 0
+                }, {
+                    "Ty": "R",
+                    "Y": distance,
+                    "T": 0,
+                    "Sk": 0,
+                    "Fu": 0,
+                    "Fl": 0,
+                    "St": 0
+                }])
+        ]
+    }
+    var touchdown = function(distance) {
+        return [
+            _.pickRandom(
+                [{
+                    "Ty": "PA",
+                    "C": 1,
+                    "Y": distance,
+                    "T": 1,
+                    "I": 0
+                }, {
+                    "Ty": "R",
+                    "Y": distance,
+                    "T": 1,
+                    "Sk": 0,
+                    "Fu": 0,
+                    "Fl": 0,
+                    "St": 0
+                }])
+        ]
     }
 
     var normalSituation = function(quarter, down, distance, at, possession, teams, scoreboard, clock) {
         var possible = [];
         var strategy = possession.getCurrentStrategy();
         var otherTeamStrategy = otherTeam(possession, teams).getCurrentStrategy();
-        var avoid = down < 4 ? ["FG", "N"] : []
+        var avoid = down < 4 ? ["FG", "N"] : ["N"]
 
         if (quarter < 6) {
             possible = _.select(data[quarter][down], function(play) {
@@ -92,6 +154,46 @@ genball.generators.playGenerator = function(data) {
 
         return possible;
     }
+
+    var otNormal = function(quarter, down, distance, at, possession, teams, scoreboard, clock) {
+        var possible = [];
+        var strategy = possession.getCurrentStrategy();
+        var otherTeamStrategy = otherTeam(possession, teams).getCurrentStrategy();
+        var avoid = down < 4 ? ["FG", "N"] : []
+
+        if (quarter < 6) {
+            possible = _.select(data[quarter][down], function(play) {
+                return play.Dis === distance && play.At === at && !_.contains(avoid, play.Ty) && meetsOTStrategy(strategy, play, otherTeamStrategy);
+            })
+        }
+
+        for (var i = 1; i < 6 && possible.length === 0; i++) {
+            possible = _.select(data[i][down], function(play) {
+                return play.Dis === distance && play.At === at && !_.contains(avoid, play.Ty) && meetsOTStrategy(strategy, play, otherTeamStrategy);
+            })
+        }
+
+
+        if (possible.length === 0) {
+            console.log('Normal: "Dn":' + down + ',"Dis":' + distance + ',"At":' + at + ",St:" + strategy);
+
+            possible = [{
+                "F": 2,
+                "Q": 3,
+                "Dn": 2,
+                "Dis": 1,
+                "At": 9,
+                "Ty": "PA",
+                "C": 0,
+                "Y": 0,
+                "T": 0,
+                "I": 0
+            }];
+        }
+
+        return possible;
+    }
+
     var makeProgress = function(quarter, down, distance, at, possession, teams, scoreboard, clock) {
         var possible = [];
         var strategy = possession.getCurrentStrategy();
@@ -146,14 +248,20 @@ genball.generators.playGenerator = function(data) {
         var avoidTypes = [];
         if (down === 4 && at <= 45 && strategy === "fg") {
             possible = makeKick();
-        } else if (down === 4 && at <= 45 && strategy === "hld") { 
+        } else if (down === 4 && at <= 45 && strategy === "hld") {
             possible = missKick();
         } else if ((quarter === 4 || quarter === 2) && strategy === "fg" && clock < 25 && at < 46) {
             possible = makeKick();
-        } else if ((quarter === 4 || quarter === 2) && strategy !== "fg" && strategy !== "hld" && clock < 60 * 6) {
+        } else if ((quarter === 4) && strategy !== "fg" && strategy !== "hld" && clock < 60 * 6) {
             possible = hailMary();
-        } else if (quarter >= 2 && scoresRemaining) {
+        } else if (quarter >= 2 && quarter < 5 && scoresRemaining) {
             possible = makeProgress(quarter, down, distance, at, possession, teams, scoreboard, clock);
+        } else if (quarter > 4 && strategy !== "fg" && strategy !== "hld" && down === 4 && (at - distance) > 0) {
+            possible = firstDown(distance);
+        } else if (quarter > 4 && strategy !== "fg" && strategy !== "hld" && down === 4 && (at - distance) === 0) {
+            possible = touchdown(distance);
+        } else if (quarter > 4) {
+            possible = otNormal(quarter, down, distance, at, possession, teams, scoreboard, clock);
         } else {
             possible = normalSituation(quarter, down, distance, at, possession, teams, scoreboard, clock);
         }

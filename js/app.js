@@ -25,14 +25,14 @@ $(document).ready(function() {
             });
 
             return _.map(playsByDrive, function(plays) {
-                    return {
-                        text: _.reduce(plays, function(memo, play) {
-                            return memo + play.commentary;
-                        }, ""),
-                        data: {}
-                    }
-                });
-            
+                return {
+                    text: _.reduce(plays, function(memo, play) {
+                        return memo + play.commentary;
+                    }, ""),
+                    data: {}
+                }
+            });
+
         }
 
         var seed = Math.random().toString(36).substring(7);
@@ -46,9 +46,14 @@ $(document).ready(function() {
             ],
             currentPage: ko.observable(0),
             nextPage: function() {
+                if (this.currentPage() >= 4) {
+                    this.pages.push({
+                        paras: playsToParas(this.game.playUntilNext())
+                    });
+                }
                 this.currentPage(this.currentPage() + 1);
-            }
-
+            },
+            game: null
         }
 
         while (!foundTie) {
@@ -56,13 +61,13 @@ $(document).ready(function() {
 
             var gameGenerator = genball.generators.gameGenerator();
 
-            game = gameGenerator.next(playData[0], kickdata[0], homeTeam, awayTeam, homeTeam.stadium, false)
-            var q1 = game.playUntilNext();
-            var q2 = game.playUntilNext();
-            var q3 = game.playUntilNext();
-            var q4 = game.playUntilNext();
+            viewModel.game = gameGenerator.next(playData[0], kickdata[0], homeTeam, awayTeam, homeTeam.stadium, false)
+            var q1 = viewModel.game.playUntilNext();
+            var q2 = viewModel.game.playUntilNext();
+            var q3 = viewModel.game.playUntilNext();
+            var q4 = viewModel.game.playUntilNext();
 
-            if (game.scoreboard.awayScores.total - game.scoreboard.homeScores.total === 0) {
+            if (viewModel.game.scoreboard.awayScores.total - viewModel.game.scoreboard.homeScores.total === 0) {
                 foundTie = true;
                 viewModel.pages.push({
                     paras: playsToParas(q1)

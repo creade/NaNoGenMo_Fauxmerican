@@ -132,8 +132,11 @@ genball.models.team = function(info, coach, OC, DC, tempo, players, institution,
     }
 
     var getCurrentStrategy = function(){
-
         return currentStrategy;
+    }
+
+    var setCurrentStrategy = function(strategy){
+        currentStrategy = strategy
     }
 
     return {
@@ -153,6 +156,7 @@ genball.models.team = function(info, coach, OC, DC, tempo, players, institution,
         shortName: institution.shortName,
         coach: coach,
         getCurrentStrategy: getCurrentStrategy,
+        setCurrentStrategy: setCurrentStrategy,
         nextStrategy: nextStrategy,
         scores: scores,
         OC: OC,
