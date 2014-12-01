@@ -9,9 +9,16 @@ text-align: left;
 letter-spacing: 1px;
 }
 
+.os {
+  font: 'Open Sans', sans-serif;  
+}
+
 .text  {
 font: 18px/27px 'Gentium Basic', serif;
 text-align: left;
+}
+.pbp-logo {
+    padding-right: 6px;
 }
 #next{
     cursor: pointer;
@@ -50,7 +57,7 @@ body {
 /* Customize container */
 
 @media (min-width: 768px) {
-    .container {
+    .container_jt {
         max-width: 730px;
     }
 }

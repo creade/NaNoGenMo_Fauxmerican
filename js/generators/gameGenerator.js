@@ -800,7 +800,11 @@ genball.generators.gameGenerator = function() {
                 driveState.quarter = 2;
                 driveState.clock = 900;
                 driveState.time += 4 * 60 * 1000;
-                return playsForNow;
+                return {
+                    playsForNow: playsForNow,
+                    home: teams.home,
+                    away: teams.away
+                };
             }
 
             while (driveState.clock > 0 && driveState.quarter === 2) {
@@ -808,7 +812,7 @@ genball.generators.gameGenerator = function() {
             }
             if (driveState.clock === 0 && driveState.quarter === 2) {
                 var EOQ2 = {
-                   commentary: "It was the end of the 1st half. The score: " + home.institution.name + " " + home.name + ": " + scoreboard.homeScores.total + ",  " + away.institution.name + " " + away.name + ": " + scoreboard.awayScores.total + ".",
+                    commentary: "It was the end of the 1st half. The score: " + home.institution.name + " " + home.name + ": " + scoreboard.homeScores.total + ",  " + away.institution.name + " " + away.name + ": " + scoreboard.awayScores.total + ".",
                     homeScore: scoreboard.homeScores.total,
                     awayScore: scoreboard.awayScores.total,
                     possession: driveState.possession,
@@ -831,7 +835,11 @@ genball.generators.gameGenerator = function() {
                 driveState.quarter = 3;
                 driveState.clock = 900;
                 driveState.time += 20 * 60 * 1000;
-                return playsForNow;
+                return {
+                    playsForNow: playsForNow,
+                    home: teams.home,
+                    away: teams.away
+                };
             }
 
 
@@ -841,7 +849,7 @@ genball.generators.gameGenerator = function() {
             }
             if (driveState.clock === 0 && driveState.quarter === 3) {
                 var EOQ3 = {
-                   commentary: "It was the end of the 3rd quarter. The score: " + home.institution.name + " " + home.name + ": " + scoreboard.homeScores.total + ",  " + away.institution.name + " " + away.name + ": " + scoreboard.awayScores.total + ".",
+                    commentary: "It was the end of the 3rd quarter. The score: " + home.institution.name + " " + home.name + ": " + scoreboard.homeScores.total + ",  " + away.institution.name + " " + away.name + ": " + scoreboard.awayScores.total + ".",
                     homeScore: scoreboard.homeScores.total,
                     awayScore: scoreboard.awayScores.total,
                     possession: driveState.possession,
@@ -854,7 +862,11 @@ genball.generators.gameGenerator = function() {
                 driveState.quarter = 4;
                 driveState.clock = 900;
                 driveState.time += 4 * 60 * 1000;
-                return playsForNow;
+                return {
+                    playsForNow: playsForNow,
+                    home: teams.home,
+                    away: teams.away
+                };
             }
 
 
@@ -883,7 +895,11 @@ genball.generators.gameGenerator = function() {
                 driveState.quarter = 5;
                 driveState.clock = 0;
                 driveState.time += 10 * 60 * 1000;
-                return playsForNow;
+                return {
+                    playsForNow: playsForNow,
+                    home: teams.home,
+                    away: teams.away
+                };
             }
 
             hasOTs++;
@@ -921,7 +937,7 @@ genball.generators.gameGenerator = function() {
             driveState.quarter++;
 
             var EOOT = {
-                commentary: "It was the end of OT "+ hasOTs + ". The score: " + home.institution.name + " " + home.name + ": " + scoreboard.homeScores.total + ",  " + away.institution.name + " " + away.name + ": " + scoreboard.awayScores.total + ".",
+                commentary: "It was the end of OT " + hasOTs + ". The score: " + home.institution.name + " " + home.name + ": " + scoreboard.homeScores.total + ",  " + away.institution.name + " " + away.name + ": " + scoreboard.awayScores.total + ".",
                 homeScore: scoreboard.homeScores.total,
                 awayScore: scoreboard.awayScores.total,
                 possession: driveState.possession,
@@ -932,7 +948,11 @@ genball.generators.gameGenerator = function() {
             plays.push(EOOT);
             playsForNow.push(EOOT);
 
-            return playsForNow;
+            return {
+                    playsForNow: playsForNow,
+                    home: teams.home,
+                    away: teams.away
+                };
 
 
         }

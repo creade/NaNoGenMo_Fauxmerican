@@ -48,13 +48,126 @@ $(document).ready(function() {
             currentPage: ko.observable(0),
             nextPage: function() {
                 if (this.currentPage() >= 4) {
+                    var playedOT = this.game.playUntilNext();
                     this.pages.push({
-                        paras: playsToParas(this.game.playUntilNext())
+                        paras: playsToParas(playedOT.playsForNow)
                     });
+                    this.home(playedOT.home);
+                    this.away(playedOT.away);
                 }
                 this.currentPage(this.currentPage() + 1);
+                $("html, body").animate({ scrollTop: 0 }, "slow");
             },
-            game: null
+            game: null,
+            home: ko.observable(homeTeam),
+            away: ko.observable(awayTeam),
+            logo: function(logo, size, klass) {
+                if (klass) {
+                    return '<svg class="' + klass + '" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '">' + logo + "</svg>"
+                }
+                return '<svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '">' + logo + "</svg>"
+            },
+            getPassingPlayers: function(team) {
+                return _.chain(team.players)
+                    .select(function(player) {
+                        var stats = player.stats;
+                        return !!stats && stats["PA"];
+                    })
+                    .map(function(player) {
+                        var dataStats = player.stats;
+                        return {
+                            player: player,
+                            team: team.shortName,
+                            points: ((dataStats["PTD"] || 0) * 4) + ((dataStats["PY"] || 0) * .04)
+                        };
+                    })
+                    .sortBy("points")
+                    .reverse()
+                    .value();
+            },
+            getRushingPlayers: function(team) {
+                return _.chain(team.players)
+                    .select(function(player) {
+                        var stats = player.stats;
+                        return !!stats && stats["RA"];
+                    })
+                    .map(function(player) {
+                        var dataStats = player.stats;
+                        return {
+                            player: player,
+                            team: team.shortName,
+                            points: ((dataStats["RTDS"] || 0) * 4) + ((dataStats["RYDS"] || 0) * .04)
+                        }
+                    })
+                    .sortBy("points")
+                    .reverse()
+                    .value();
+            },
+            getReceivingPlayers: function(team) {
+                return _.chain(team.players)
+                    .select(function(player) {
+                        var stats = player.stats;
+                        return !!stats && stats["R"];
+                    })
+                    .map(function(player) {
+                        var dataStats = player.stats;
+                        return {
+                            player: player,
+                            team: team.shortName,
+                            points: ((dataStats["RECTD"] || 0) * 4) + (dataStats["R"] || 0) + ((dataStats["RECY"] || 0) * .04)
+                        }
+                    })
+                    .sortBy("points")
+                    .reverse()
+                    .value();
+            },
+
+            getKickingPlayers: function(team) {
+                return _.chain(team.players)
+                    .select(function(player) {
+                        var stats = player.stats;
+                        return !!stats && (stats["XPA"] || stats["FGA"]);
+                    })
+                    .map(function(player) {
+                        return {
+                            player: player
+                        }
+                    })
+                    .value();
+            },
+            getDefensivePlayers: function(team) {
+                return _.chain(team.players)
+                    .select(function(player) {
+                        var stats = player.stats;
+                        return !!stats && (stats["FR"] || stats["INTD"] || stats["SK"]);
+                    })
+                    .map(function(player) {
+                        return {
+                            player: player
+                        }
+                    })
+                    .value();
+            },
+
+            getReturnPlayers: function(team) {
+                return _.select(team.players, function(player) {
+                    var stats = player.stats;
+                    return !!stats && (stats["PR"] || stats["KOR"]);
+                });
+            },
+            getPuntingPlayers: function(team) {
+                return _.chain(team.players)
+                    .select(function(player) {
+                        var stats = player.stats;
+                        return !!stats && stats["P"];
+                    })
+                    .map(function(player) {
+                        return {
+                            player: player
+                        }
+                    })
+                    .value();
+            }
         }
 
         while (!foundTie) {
@@ -63,10 +176,10 @@ $(document).ready(function() {
             var gameGenerator = genball.generators.gameGenerator();
 
             viewModel.game = gameGenerator.next(playData[0], kickdata[0], homeTeam, awayTeam, homeTeam.stadium, false)
-            var q1 = viewModel.game.playUntilNext();
-            var q2 = viewModel.game.playUntilNext();
-            var q3 = viewModel.game.playUntilNext();
-            var q4 = viewModel.game.playUntilNext();
+            var q1 = viewModel.game.playUntilNext().playsForNow;
+            var q2 = viewModel.game.playUntilNext().playsForNow;
+            var q3 = viewModel.game.playUntilNext().playsForNow;
+            var q4 = viewModel.game.playUntilNext().playsForNow;
 
             if (viewModel.game.scoreboard.awayScores.total - viewModel.game.scoreboard.homeScores.total === 0) {
                 foundTie = true;

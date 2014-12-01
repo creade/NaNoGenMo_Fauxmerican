@@ -4,7 +4,7 @@
 <head>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/jumbotron-narrow.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:800|Gentium+Basic:400,400italic" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:800|Gentium+Basic:400,400italic|Holtwood+One+SC|Graduate|Lily+Script+One" rel="stylesheet" type="text/css">
     <script src="js/lib/knockout-3.2.0.js" type="text/javascript"></script>
     <script src="js/lib/jquery-2.0.3.min.js" type="text/javascript"></script>
     <script src="js/lib/underscore-min.js" type="text/javascript"></script>
@@ -32,7 +32,7 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="container container_jt">
         <div class="row" data-bind="if: currentPage() === 0">
             <h2 class="title">The Fauxmerican Football Conferderacy</h2>
         </div>
@@ -44,6 +44,536 @@
         <div class="row">
             <div class="col-sm-12 text-center">
                 <h3 class="title" id="next" data-bind="click: nextPage"><a>Next</a></h3>
+            </div>
+        </div>
+        <div class="row" data-bind="if: currentPage() === 4">
+           <div class="col-sm-12" >
+                <p class="text">I looked over and noticed for the first time that dad had been keeping meticulous stats. He wasn't going to let this go undocumented:</p>
+            </div>
+        </div>
+    </div>
+    <div class="container" data-bind="if: currentPage() > 3">
+        <div class="row">
+            <div class="col-xs-12">
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <h4 class="text-center">Stat Comparison</h4>
+                        <table class="table os text-center ">
+                            <thead>
+                                <th data-bind="style: { borderBottomColor: home().color }">
+                                    <div data-bind="html: $root.logo(home().logo, 30, 'pull-left pbp-logo')"></div>
+                                    <h6 class="text-center" data-bind="text: home().shortName, style: { borderTopColor: home().color }"></h6>
+                                </th>
+                                <th></th>
+
+                                <th data-bind="style: { borderBottomColor: away().color }">
+                                    <div data-bind="html: $root.logo(away().logo, 30, 'pull-left pbp-logo')"></div>
+                                    <h6 class="text-center" data-bind="text: away().shortName"></h6>
+                                </th>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td data-bind="text: home().stats['FD']"></td>
+                                    <td>First Downs</td>
+
+                                    <td data-bind="text: away().stats['FD']"></td>
+                                </tr>
+                                <tr>
+                                    <td data-bind="text: (home().stats['TDS'] || 0) + ' - '+ (home().stats['TDA'] || 0) "></td>
+                                    <td>Third Down Efficiency</td>
+
+                                    <td data-bind="text: (away().stats['TDS'] || 0) + ' - '+ (away().stats['TDA'] || 0) "></td>
+                                </tr>
+                                <tr>
+                                    <td data-bind="text: (home().stats['FDS'] || 0) + ' - '+ (home().stats['FDA'] || 0) "></td>
+                                    <td>Fourth Down Efficiency</td>
+
+                                    <td data-bind="text: (away().stats['FDS'] || 0) + ' - '+ (away().stats['FDA'] || 0)"></td>
+                                </tr>
+                                <tr>
+                                    <td data-bind="text: (home().stats['PY']||0) + (home().stats['RYDS']||0)"></td>
+                                    <td>Total Yards</td>
+                                    
+                                    <td data-bind="text: (away().stats['PY']||0) + (away().stats['RYDS']||0)"></td>
+
+                                </tr>
+                                <tr>
+                                    <td colspan="3"><b>Passing</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td data-bind="text: home().stats['PY']"></td>
+                                    <td>Yards</td>
+
+                                    <td data-bind="text: away().stats['PY']"></td>
+                                </tr>
+                                <tr>
+                                    <td data-bind="text: (home().stats['C']||0) + ' - '+ (home().stats['PA']||0) "></td>
+                                    <td>Completions - Attempts</td>
+
+                                    <td data-bind="text: (away().stats['C']||0) + ' - '+ (away().stats['PA']||0) "></td>
+                                </tr>
+                                <tr>
+                                    <td data-bind="text: (((home().stats['PY'] || 0) / (home().stats['PA'] || 0)) || 0).toFixed(1)"></td>
+                                    <td>Yards per Attempt</td>
+
+                                    <td data-bind="text: (((away().stats['PY'] || 0) / (away().stats['PA'] || 0)) || 0).toFixed(1)"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3"><b>Rushing</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td data-bind="text: home().stats['RYDS']"></td>
+                                    <td>Yards</td>
+
+                                    <td data-bind="text: away().stats['RYDS']"></td>
+                                </tr>
+                                <tr>
+                                    <td data-bind="text: home().stats['RA']"></td>
+                                    <td>Attempts</td>
+
+                                    <td data-bind="text: away().stats['RA']"></td>
+                                </tr>
+                                <tr>
+                                    <td data-bind="text: (((home().stats['RYDS'] || 0) / (home().stats['RA'] || 0)) || 0).toFixed(1)"></td>
+                                    <td>Yards per Attempt</td>
+
+                                    <td data-bind="text: (((away().stats['RYDS'] || 0) / (away().stats['RA'] || 0)) || 0).toFixed(1)"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3"><b>Turnovers</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td data-bind="text: home().stats['INT'] "></td>
+                                    <td>Interceptions</td>
+
+                                    <td data-bind="text: away().stats['INT'] "></td>
+                                </tr>
+                                <tr>
+                                    <td data-bind="text: home().stats['FL'] "></td>
+                                    <td>Fumbles Lost</td>
+
+                                    <td data-bind="text: away().stats['FL'] "></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div data-bind="html: logo(home().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: home().name + ' Passing'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: home().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">C</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">PA</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">%</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">YDS</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">TD</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">INT</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getPassingPlayers(home())">
+                                <tr>
+                                    <td data-bind="text: player.fullName"></td>
+                                    <td data-bind="text: player.position"></td>
+                                    <td data-bind="text: player.stats['C'] || '0'"></td>
+                                    <td data-bind="text: player.stats['PA']"></td>
+                                    <td data-bind="text: ((((player.stats['C'] || 0) / (player.stats['PA'] || 0)) || 0)*100).toFixed(1)"></td>
+                                    <td data-bind="text: player.stats['PY'] || '0'"></td>
+                                    <td data-bind="text: player.stats['PTD'] || '0'"></td>
+                                    <td data-bind="text: player.stats['INT'] || '0'"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <div data-bind="html: $root.logo(away().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: away().name + ' Passing'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: away().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">C</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">PA</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">%</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">YDS</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">TD</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">INT</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getPassingPlayers(away())">
+                                <tr>
+                                    <td data-bind="text: player.fullName"></td>
+                                    <td data-bind="text: player.position"></td>
+                                    <td data-bind="text: player.stats['C'] || '0'"></td>
+                                    <td data-bind="text: player.stats['PA']"></td>
+                                    <td data-bind="text: ((((player.stats['C'] || 0) / (player.stats['PA'] || 0)) || 0)*100).toFixed(1)"></td>
+                                    <td data-bind="text: player.stats['PY'] || '0'"></td>
+                                    <td data-bind="text: player.stats['PTD'] || '0'"></td>
+                                    <td data-bind="text: player.stats['INT'] || '0'"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div data-bind="html: $root.logo(home().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: home().name + ' Rushing'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: home().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">CAR</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">YDS</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">AVG</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">TD</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getRushingPlayers(home())">
+                                <tr>
+                                    <td data-bind="text: player.fullName"></td>
+                                    <td data-bind="text: player.position"></td>
+                                    <td data-bind="text: player.stats['RA']"></td>
+                                    <td data-bind="text: player.stats['RYDS'] || '0'"></td>
+                                    <td data-bind="text: ((player.stats['RYDS'] / player.stats['RA'])|| 0).toFixed(1) "></td>
+                                    <td data-bind="text: player.stats['RTDS'] || '0'"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <div data-bind="html: $root.logo(away().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: away().name + ' Rushing'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: away().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">CAR</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">YDS</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">AVG</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">TD</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getRushingPlayers(away())">
+                                <tr>
+                                    <td data-bind="text: player.fullName"></td>
+                                    <td data-bind="text: player.position"></td>
+                                    <td data-bind="text: player.stats['RA']"></td>
+                                    <td data-bind="text: player.stats['RYDS'] || '0'"></td>
+                                    <td data-bind="text: ((player.stats['RYDS'] / player.stats['RA']) || 0).toFixed(1) "></td>
+                                    <td data-bind="text: player.stats['RTDS'] || '0'"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div data-bind="html: $root.logo(home().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: home().name + ' Receiving'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: home().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">REC</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">YDS</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">TD</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getReceivingPlayers(home())">
+                                <tr>
+                                    <td data-bind="text: player.fullName"></td>
+                                    <td data-bind="text: player.position"></td>
+                                    <td data-bind="text: player.stats['R']"></td>
+                                    <td data-bind="text: player.stats['RECY'] || '0'"></td>
+                                    <td data-bind="text: player.stats['RECTD'] || '0'"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <div data-bind="html: $root.logo(away().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: away().name + ' Receiving'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: away().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">REC</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">YDS</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">TD</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getReceivingPlayers(away())">
+                                <tr>
+                                    <td data-bind="text: player.fullName"></td>
+                                    <td data-bind="text: player.position"></td>
+                                    <td data-bind="text: player.stats['R']"></td>
+                                    <td data-bind="text: player.stats['RECY'] || '0'"></td>
+                                    <td data-bind="text: player.stats['RECTD'] || '0'"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div data-bind="html: $root.logo(home().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: home().name + ' Defense'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: home().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">FUMB REC.</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">INT</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">SACK</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getDefensivePlayers(home())">
+                                <tr>
+                                    <td data-bind="text: player.fullName"></td>
+                                    <td data-bind="text: player.position"></td>
+                                    <td data-bind="text: player.stats['FR'] || ''"></td>
+                                    <td data-bind="text: player.stats['INTD'] || ''"></td>
+                                    <td data-bind="text: player.stats['SK'] || ''"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <div data-bind="html: $root.logo(away().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: away().name + ' Defense'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: away().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">FUMB REC.</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">INT</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">SACK</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getDefensivePlayers(away())">
+                                <tr>
+                                    <td data-bind="text: player.fullName"></td>
+                                    <td data-bind="text: player.position"></td>
+                                    <td data-bind="text: player.stats['FR'] || ''"></td>
+                                    <td data-bind="text: player.stats['INTD'] || ''"></td>
+                                    <td data-bind="text: player.stats['SK'] || ''"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div data-bind="html: $root.logo(home().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: home().name + ' Kicking'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: home().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">FG</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">LONG</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">XP</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getKickingPlayers(home())">
+                                <tr>
+                                    <td data-bind="text: player.fullName"></td>
+                                    <td data-bind="text: player.position"></td>
+                                    <td data-bind="text: player.stats['FGA'] ? (player.stats['FGM'] || '0') + ' - '+ (player.stats['FGA'] || '0') : ''"></td>
+                                    <td data-bind="text: player.stats['FGL'] || ''"></td>
+                                    <td data-bind="text: player.stats['XPM'] ? (player.stats['XPM'] || '0') + ' - '+ (player.stats['XPA'] || '0') : ''"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <div data-bind="html: $root.logo(away().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: away().name + ' Kicking'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: away().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">FG</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">LONG</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">XP</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getKickingPlayers(away())">
+                                <tr>
+                                    <td data-bind="text: player.fullName"></td>
+                                    <td data-bind="text: player.position"></td>
+                                    <td data-bind="text: player.stats['FGA'] ? (player.stats['FGM'] || '0') + ' - '+ (player.stats['FGA'] || '0') : ''"></td>
+                                    <td data-bind="text: player.stats['FGL'] || ''"></td>
+                                    <td data-bind="text: player.stats['XPM'] ? (player.stats['XPM'] || '0') + ' - '+ (player.stats['XPA'] || '0') : ''"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div data-bind="html: $root.logo(home().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: home().name + ' Punting'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: home().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">P</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">YDS</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">AVG</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">LONG</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getPuntingPlayers(home())">
+                                <tr>
+                                    <td data-bind="text: player.fullName"></td>
+                                    <td data-bind="text: player.position"></td>
+                                    <td data-bind="text: player.stats['P']"></td>
+                                    <td data-bind="text: player.stats['PUYDS']"></td>
+                                    <td data-bind="text: ((player.stats['PUYDS'] / player.stats['P']) || 0).toFixed(1) "></td>
+                                    <td data-bind="text: player.stats['PL']"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <div data-bind="html: $root.logo(away().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: away().name + ' Punting'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: away().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">P</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">YDS</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">AVG</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">LONG</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getPuntingPlayers(away())">
+                                <tr>
+                                    <td data-bind="text: player.fullName"></td>
+                                    <td data-bind="text: player.position"></td>
+                                    <td data-bind="text: player.stats['P']"></td>
+                                    <td data-bind="text: player.stats['PUYDS']"></td>
+                                    <td data-bind="text: ((player.stats['PUYDS'] / player.stats['P'])|| 0).toFixed(1) "></td>
+                                    <td data-bind="text: player.stats['PL']"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div data-bind="html: $root.logo(home().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: home().name + ' Returns'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th colspan="4" class="text-center">KICKOFFS</th>
+                                    <th></th>
+                                    <th colspan="4" class="text-center">PUNTS</th>
+                                </tr>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: home().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">ATT</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">YDS</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">LNG</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">TD</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }"></th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">ATT</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">YDS</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">LNG</th>
+                                    <th data-bind="style: { borderBottomColor: home().color }">TD</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getReturnPlayers(home())">
+                                <tr>
+                                    <td data-bind="text: fullName"></td>
+                                    <td data-bind="text: position"></td>
+                                    <td data-bind="text: stats['KOR'] || ''"></td>
+                                    <td data-bind="text: stats['KORYDS'] || ''"></td>
+                                    <td data-bind="text: stats['KORL'] || ''"></td>
+                                    <td data-bind="text: stats['KORTD'] || ''"></td>
+                                    <td></td>
+                                    <td data-bind="text: stats['PR'] || ''"></td>
+                                    <td data-bind="text: stats['PRYDS'] || ''"></td>
+                                    <td data-bind="text: stats['PRL'] || ''"></td>
+                                    <td data-bind="text: stats['PRTD'] || ''"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <div data-bind="html: $root.logo(away().logo, 30, 'pull-left pbp-logo')"></div>
+                        <h4 data-bind="text: away().name + ' Returns'"></h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th colspan="4" class="text-center">KICKOFFS</th>
+                                    <th></th>
+                                    <th colspan="4" class="text-center">PUNTS</th>
+                                </tr>
+                                <tr>
+                                    <th data-bind="style: { borderBottomColor: away().color }">NAME</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">POS</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">ATT</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">YDS</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">LNG</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">TD</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }"></th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">ATT</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">YDS</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">LNG</th>
+                                    <th data-bind="style: { borderBottomColor: away().color }">TD</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: getReturnPlayers(away())">
+                                <tr>
+                                    <td data-bind="text: fullName"></td>
+                                    <td data-bind="text: position"></td>
+                                    <td data-bind="text: stats['KOR'] || ''"></td>
+                                    <td data-bind="text: stats['KORYDS'] || ''"></td>
+                                    <td data-bind="text: stats['KORL'] || ''"></td>
+                                    <td data-bind="text: stats['KORTD'] || ''"></td>
+                                    <td></td>
+                                    <td data-bind="text: stats['PR'] || ''"></td>
+                                    <td data-bind="text: stats['PRYDS'] || ''"></td>
+                                    <td data-bind="text: stats['PRL'] || ''"></td>
+                                    <td data-bind="text: stats['PRTD'] || ''"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
             </div>
         </div>
 
