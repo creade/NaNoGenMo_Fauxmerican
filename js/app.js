@@ -9,7 +9,7 @@ $(document).ready(function() {
     ).done(function(teamData, firstNames, lastNames, playData, kickdata, logos) {
         var seed = Math.random().toString(36).substring(7);
         console.log(seed)
-        Math.seedrandom("seed");
+        Math.seedrandom("3hobax20529");
 
         var lastNameGenerator = genball.generators.lastNameGenerator(lastNames);
         var firstNameGenerator = genball.generators.firstNameGenerator(firstNames);

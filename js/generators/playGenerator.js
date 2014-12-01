@@ -120,7 +120,7 @@ genball.generators.playGenerator = function(data) {
         var possible = [];
         var strategy = possession.getCurrentStrategy();
         var otherTeamStrategy = otherTeam(possession, teams).getCurrentStrategy();
-        var avoid = down < 4 ? ["FG", "N"] : ["N"]
+        var avoid = down < 4 ? ["FG", "N"] : []
 
         if (quarter < 6) {
             possible = _.select(data[quarter][down], function(play) {
@@ -159,7 +159,7 @@ genball.generators.playGenerator = function(data) {
         var possible = [];
         var strategy = possession.getCurrentStrategy();
         var otherTeamStrategy = otherTeam(possession, teams).getCurrentStrategy();
-        var avoid = down < 4 ? ["FG", "N"] : []
+        var avoid = down < 4 ? ["FG", "N"] : ["N"]
 
         if (quarter < 6) {
             possible = _.select(data[quarter][down], function(play) {
