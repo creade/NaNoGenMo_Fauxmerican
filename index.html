@@ -46,13 +46,13 @@
                 <h3 class="title" id="next" data-bind="click: nextPage"><a>Next</a></h3>
             </div>
         </div>
-        <div class="row" data-bind="if: currentPage() === 4">
-           <div class="col-sm-12" >
+        <div class="row" data-bind="visible: currentPage() === 4"style="display:none">
+            <div class="col-sm-12">
                 <p class="text">I looked over and noticed for the first time that dad had been keeping meticulous stats. He wasn't going to let this go undocumented:</p>
             </div>
         </div>
     </div>
-    <div class="container" data-bind="if: currentPage() > 3">
+    <div class="container" data-bind="visible: currentPage() >= 4" style="display:none">
         <div class="row">
             <div class="col-xs-12">
 
@@ -94,7 +94,7 @@
                                 <tr>
                                     <td data-bind="text: (home().stats['PY']||0) + (home().stats['RYDS']||0)"></td>
                                     <td>Total Yards</td>
-                                    
+
                                     <td data-bind="text: (away().stats['PY']||0) + (away().stats['RYDS']||0)"></td>
 
                                 </tr>
@@ -573,17 +573,18 @@
                         </table>
                     </div>
                 </div>
-                
+
             </div>
+
         </div>
-
-
-
-        <footer class="footer">
-            <!--             <p>&copy; Company 2014</p> -->
-        </footer>
-
     </div>
+
+
+
+    <footer class="footer">
+        <!--             <p>&copy; Company 2014</p> -->
+    </footer>
+
     <!-- /container -->
 
 </body>
